@@ -3,10 +3,15 @@ import type { AWS } from "@serverless/typescript";
 const serverlessConfiguration: AWS = {
   service: "certificationignite",
   frameworkVersion: "3",
-  plugins: ["serverless-esbuild", "serverless-offline"],
+  plugins: [
+    "serverless-esbuild",
+    "serverless-dynamodb-local",
+    "serverless-offline",
+  ],
   provider: {
     name: "aws",
     runtime: "nodejs14.x",
+    region: "us-east-1",
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -15,16 +20,23 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
       NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
     },
+    iamRoleStatements: [
+      {
+        Effect: "Allow",
+        Action: ["dynamodb:*"],
+        Resource: ["*"],
+      },
+    ],
   },
   // import the function via paths
   functions: {
-    hello: {
-      handler: "src/functions/hello.handler",
+    generateCertification: {
+      handler: "src/functions/generateCertification.handler",
       events: [
         {
           http: {
             path: "hello",
-            method: "GET",
+            method: "POST",
             cors: true,
           },
         },
@@ -43,13 +55,21 @@ const serverlessConfiguration: AWS = {
       platform: "node",
       concurrency: 10,
     },
+    dynamodb: {
+      stages: ["dev", "local"],
+      start: {
+        port: 8000,
+        inMemory: true,
+        migrate: true,
+      },
+    },
   },
   resources: {
     Resources: {
       dbCertificateUsers: {
         Type: "AWS::DynamoDB::Table",
         Properties: {
-          TableName: "users_certificate",
+          TableName: "users_certifications",
           ProvisionedThroughput: {
             ReadCapacityUnits: 5,
             WriteCapacityUnits: 5,
