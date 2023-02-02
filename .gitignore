@@ -9,3 +9,4 @@ jspm_packages
 .esbuild
 
 .dynamodb
+certification.pdf
