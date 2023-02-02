@@ -29,7 +29,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       body: JSON.stringify({
         message: "Valid certification.",
         name: userCertification.name,
-        url: `https://node-js-certification-ignite.s3.amazonaws.com/${userCertification.id}.pdf`,
+        url: `${process.env.AWS_BUCKET_URL}/${userCertification.id}.pdf`,
       }),
     };
   }

@@ -21,7 +21,7 @@ interface ICreateCertification {
 }
 
 const compileTemplate = async (data: ITemplate) => {
-  const filePath = join(process.cwd(), "src", "templates", "certificate.hbs");
+  const filePath = join(process.cwd(), "src", "templates", "certification.hbs");
 
   const html = readFileSync(filePath, "utf-8");
 
@@ -95,7 +95,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
   await s3
     .putObject({
-      Bucket: "node-js-certification-ignite",
+      Bucket: process.env.AWS_BUCKET_NAME,
       Key: `${id}.pdf`,
       ACL: "public-read",
       Body: pdf,
@@ -107,7 +107,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     statusCode: 201,
     body: JSON.stringify({
       message: "Certification successfully created!",
-      url: `https://node-js-certification-ignite.s3.amazonaws.com/${id}.pdf`,
+      url: `${process.env.AWS_BUCKET_URL}/${id}.pdf`,
     }),
   };
 };
