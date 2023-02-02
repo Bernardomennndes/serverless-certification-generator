@@ -1,14 +1,29 @@
-# Serverless - AWS Node.js Typescript
+<h1 align="center">Node.js Serverless API - Course Certification Generator and Validator</h1>
 
-This project has been generated using the `aws-nodejs-typescript` template from the [Serverless framework](https://www.serverless.com/).
+This project was developed with the goal of structuring an API that could generate a course completion certification with a given student name and grade.
 
-For detailed instructions, please refer to the [documentation](https://www.serverless.com/framework/docs/providers/aws/).
+It has an additional functionality of checking if the id of the certification is valid.
 
-## Installation/deployment instructions
+<br/>
+<h2>Libraries Used</h2>
+
+#### Core Libraries
+
+- [Serverless](https://www.serverless.com/)
+- [Node.js](https://nodejs.org/en/)
+- [AWS](https://aws.amazon.com/pt/sdk-for-javascript/)
+- [DynamoDB](https://aws.amazon.com/pt/dynamodb/)
+
+#### Utility Libraries
+
+- [Typescript](https://www.typescriptlang.org/)
+- [Handlebars](https://handlebarsjs.com/)
+- [Day.js](https://day.js.org)
+
+<br/>
+<h2>Installation Instructions</h2>
 
 Depending on your preferred package manager, follow the instructions below to deploy your project.
-
-> **Requirements**: NodeJS `lts/fermium (v.14.15.0)`. If you're using [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to ensure you're using the same Node version in local and in your lambda's runtime.
 
 ### Using NPM
 
@@ -19,85 +34,63 @@ Depending on your preferred package manager, follow the instructions below to de
 
 - Run `yarn` to install the project dependencies
 - Run `yarn sls deploy` to deploy this stack to AWS
+  
+<br />
+<h2>Deployment Instructions</h2>
 
-## Test your service
+### Local Deploy
 
-This template contains a single lambda function triggered by an HTTP request made on the provisioned API Gateway REST API `/hello` route with `POST` method. The request body must be provided as `application/json`. The body structure is tested by API Gateway against `src/functions/hello/schema.ts` JSON-Schema definition: it must contain the `name` property.
+> **Requirement**: NodeJS `lts/fermium (v.14.15.0)`. If you're using [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to ensure you're using the same Node version in local and in your lambda's runtime.
 
-- requesting any other path than `/hello` with any other method than `POST` will result in API Gateway returning a `403` HTTP error code
-- sending a `POST` request to `/hello` with a payload **not** containing a string property named `name` will result in API Gateway returning a `400` HTTP error code
-- sending a `POST` request to `/hello` with a payload containing a string property named `name` will result in API Gateway returning a `200` HTTP status code with a message saluting the provided name and the detailed event processed by the lambda
+- Run `yarn dynamodb:install`, `nmp run dynamodb:install` or `serverless dynamodb install` to install the dynamodb offline database on your local machine.
+  
+- Run `yarn dynamodb:start`, `nmp run dynamodb:start` or `serverless dynamodb start` to start the dynamodb offline database on your local machine.
 
-> :warning: As is, this template, once deployed, opens a **public** endpoint within your AWS account resources. Anybody with the URL can actively execute the API Gateway endpoint and the corresponding lambda. You should protect this endpoint with the authentication method of your choice.
+- Run `yarn dev` or `npm run dev` to start the offline application locally.
 
-### Locally
+<br>
+### AWS Deploy
 
-In order to test the hello function locally, run the following command:
+> **Requirement**: Set your AWS configuration keys by running `serverless config credentials --provider aws --key=<access_key> --secret=<secret_access_key>` on your folder terminal by replacing the `<access_key>` and `<secret_access_key>` variables with the respective key values of your IAM user.
 
-- `npx sls invoke local -f hello --path src/functions/hello/mock.json` if you're using NPM
-- `yarn sls invoke local -f hello --path src/functions/hello/mock.json` if you're using Yarn
+> **Requirement**: Set the environment variables `AWS_BUCKET_NAME` and `AWS_BUCKET_URL` in the `.env` file and in the Lambda section. Read [this](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-config) article to learn how to configure your environment variables at AWS.
 
-Check the [sls invoke local command documentation](https://www.serverless.com/framework/docs/providers/aws/cli-reference/invoke-local/) for more information.
+- Run `serverless deploy` to deploy your application to the AWS lambda service.
 
-### Remotely
+<br />
+<h2>Endpoints Available</h2>
 
-Copy and replace your `url` - found in Serverless `deploy` command output - and `name` parameter in the following `curl` command in your terminal or in Postman to test your newly deployed application.
+- `[POST] /dev/generateCertification` - Generates the certification.
+- `[GET] /dev/validateCertification/{id}` - Validates the certification.
 
-```
-curl --location --request POST 'https://myApiEndpoint/dev/hello' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "name": "Frederic"
-}'
-```
-
-## Template features
-
-### Project structure
+<br />
+<h2>Project structure</h2>
 
 The project code base is mainly located within the `src` folder. This folder is divided in:
 
-- `functions` - containing code base and configuration for your lambda functions
-- `libs` - containing shared code base between your lambdas
+- `functions` - containing code base and configuration for the lambda functions
+- `templates` - containing the certification template 
+- `utils` - containing shared utility functions and configuration
 
 ```
 .
 ├── src
-│   ├── functions               # Lambda configuration and source code folder
-│   │   ├── hello
-│   │   │   ├── handler.ts      # `Hello` lambda source code
-│   │   │   ├── index.ts        # `Hello` lambda Serverless configuration
-│   │   │   ├── mock.json       # `Hello` lambda input parameter, if any, for local invocation
-│   │   │   └── schema.ts       # `Hello` lambda input event JSON-Schema
-│   │   │
-│   │   └── index.ts            # Import/export of all lambda configurations
+│   ├── functions                        # Lambda configuration and source code folder
+│   │    ├── generateCertification.ts    # `generateCertification` lambda source code
+│   │    └── verifyCertification.ts      # `verifyCertification` lambda source code
 │   │
-│   └── libs                    # Lambda shared code
-│       └── apiGateway.ts       # API Gateway specific helpers
-│       └── handlerResolver.ts  # Sharable library for resolving lambda handlers
-│       └── lambda.ts           # Lambda middleware
-│
+│   ├── utils                            # Utility folder
+│   │   └── dynamodbClient.ts            # Database client manager
+│   │
+|   └── templates
+│       └── certification.hbs            # Certification card template
+|       └── selo.png                     # Certification stamp/seal
+|
 ├── package.json
-├── serverless.ts               # Serverless service file
-├── tsconfig.json               # Typescript compiler configuration
-├── tsconfig.paths.json         # Typescript paths
-└── webpack.config.js           # Webpack configuration
+├── serverless.ts                        # Serverless service file
+└── tsconfig.json                        # Typescript compiler configuration
 ```
 
-### 3rd party libraries
-
-- [json-schema-to-ts](https://github.com/ThomasAribart/json-schema-to-ts) - uses JSON-Schema definitions used by API Gateway for HTTP request validation to statically generate TypeScript types in your lambda's handler code base
-- [middy](https://github.com/middyjs/middy) - middleware engine for Node.Js lambda. This template uses [http-json-body-parser](https://github.com/middyjs/middy/tree/master/packages/http-json-body-parser) to convert API Gateway `event.body` property, originally passed as a stringified JSON, to its corresponding parsed object
-- [@serverless/typescript](https://github.com/serverless/typescript) - provides up-to-date TypeScript definitions for your `serverless.ts` service file
-
-### Advanced usage
-
-Any tsconfig.json can be used, but if you do, set the environment variable `TS_NODE_CONFIG` for building the application, eg `TS_NODE_CONFIG=./tsconfig.app.json npx serverless webpack`
-
-### Project Initialization
-
-`serverless dynamodb install`
-
-`serverless dynamodb start`
-
-`serverless config credentials --provider aws --key=<access_key> --secret=<secret_access_key>`
+<br />
+<h2 align="right">Certification Preview</h2>
+<img src="./.github/certification.png">
