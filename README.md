@@ -42,13 +42,16 @@ Depending on your preferred package manager, follow the instructions below to de
 
 > **Requirement**: NodeJS `lts/fermium (v.14.15.0)`. If you're using [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to ensure you're using the same Node version in local and in your lambda's runtime.
 
-- Run `yarn dynamodb:install`, `nmp run dynamodb:install` or `serverless dynamodb install` to install the dynamodb offline database on your local machine.
+> **Requirement**: Set the environment variables `AWS_BUCKET_NAME` and `AWS_BUCKET_URL` in the `.env` file and in the Lambda section.
+
+- Run `yarn dynamodb:install`, `nmp run dynamodb:install` or `serverless dynamodb install` to install the dynamodb offline database in your local machine.
   
-- Run `yarn dynamodb:start`, `nmp run dynamodb:start` or `serverless dynamodb start` to start the dynamodb offline database on your local machine.
+- Run `yarn dynamodb:start`, `nmp run dynamodb:start` or `serverless dynamodb start` to start the dynamodb offline database in your local machine.
 
 - Run `yarn dev` or `npm run dev` to start the offline application locally.
 
 <br>
+
 ### AWS Deploy
 
 > **Requirement**: Set your AWS configuration keys by running `serverless config credentials --provider aws --key=<access_key> --secret=<secret_access_key>` on your folder terminal by replacing the `<access_key>` and `<secret_access_key>` variables with the respective key values of your IAM user.
